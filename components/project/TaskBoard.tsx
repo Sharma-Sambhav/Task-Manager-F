@@ -138,7 +138,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ projectId, project, readOnly = fa
         const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                              task.description?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-        const matchesUser = !userId || task.assignedTo._id === userId;
+        const matchesUser = !userId || task.assignedTo?._id === userId;
         return matchesSearch && matchesStatus && matchesUser;
     });
 
