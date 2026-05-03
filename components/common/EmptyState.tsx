@@ -34,8 +34,19 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             )}
             
             {action && (
-                <div>
-                    {action}
+                <div className="mt-6">
+                    {React.isValidElement(action) ? (
+                        action
+                    ) : typeof action === 'object' && (action as any).label ? (
+                        <button
+                            onClick={(action as any).onClick}
+                            className="px-6 py-2 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all active:scale-95"
+                        >
+                            {(action as any).label}
+                        </button>
+                    ) : (
+                        action as React.ReactNode
+                    )}
                 </div>
             )}
         </div>

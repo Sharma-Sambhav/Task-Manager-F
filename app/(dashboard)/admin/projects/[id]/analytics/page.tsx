@@ -35,29 +35,34 @@ import {
 
 // --- Sub-components for Visuals ---
 
-const StatCard = ({ title, value, subtext, icon, trend, colorClass = "primary" }: any) => (
-    <div className="bg-surface border border-border-theme rounded-3xl p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-        <div className={`absolute top-0 right-0 w-32 h-32 bg-${colorClass}/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500`} />
-        
-        <div className="flex items-center justify-between mb-4 relative z-10">
-            <div className={`p-2.5 bg-${colorClass}/10 rounded-xl`}>
-                {React.cloneElement(icon, { className: `w-5 h-5 text-${colorClass}` })}
-            </div>
-            {trend && (
-                <div className={`flex items-center gap-1 text-xs font-bold ${trend.type === 'up' ? 'text-success' : 'text-error'}`}>
-                    {trend.type === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    {trend.value}%
+const StatCard = ({ title, value, subtext, icon, trend, colorClass = "primary" }: any) => {
+    const trendColor = trend?.type === 'up' ? 'text-success' : trend?.type === 'down' ? 'text-error' : 'text-text-secondary';
+    const TrendIcon = trend?.type === 'up' ? TrendingUp : trend?.type === 'down' ? TrendingDown : Activity;
+
+    return (
+        <div className="bg-surface border border-border-theme rounded-3xl p-6 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-${colorClass}/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500`} />
+            
+            <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className={`p-2.5 bg-${colorClass}/10 rounded-xl`}>
+                    {React.cloneElement(icon, { className: `w-5 h-5 text-${colorClass}` })}
                 </div>
-            )}
+                {trend && (
+                    <div className={`flex items-center gap-1 text-xs font-bold ${trendColor}`}>
+                        <TrendIcon className="w-3 h-3" />
+                        {trend.value}%
+                    </div>
+                )}
+            </div>
+            
+            <div className="relative z-10">
+                <p className="text-3xl font-black text-text-primary mb-1">{value || '0'}</p>
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">{title}</p>
+                {subtext && <p className="text-[10px] text-text-secondary/70 mt-2">{subtext}</p>}
+            </div>
         </div>
-        
-        <div className="relative z-10">
-            <p className="text-3xl font-black text-text-primary mb-1">{value}</p>
-            <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">{title}</p>
-            {subtext && <p className="text-[10px] text-text-secondary/70 mt-2">{subtext}</p>}
-        </div>
-    </div>
-);
+    );
+};
 
 const HealthRing = ({ value, label, color = "#7c3aed" }: { value: number, label: string, color?: string }) => {
     const radius = 36;
@@ -98,23 +103,31 @@ const HealthRing = ({ value, label, color = "#7c3aed" }: { value: number, label:
     );
 };
 
-const MemberContributionRow = ({ member }: { member: any }) => (
-    <div className="flex items-center justify-between p-4 bg-background/40 border border-border-theme/50 rounded-2xl hover:bg-background/60 transition-all">
-        <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-border-theme flex items-center justify-center font-bold text-primary text-xs">
-                {member.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+const MemberContributionRow = ({ member }: { member: any }) => {
+    if (!member) return null;
+    const name = member.name || 'Anonymous Agent';
+    const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    const productivity = member.stats?.productivityScore || 0;
+    const completed = member.stats?.completed || 0;
+
+    return (
+        <div className="flex items-center justify-between p-4 bg-background/40 border border-border-theme/50 rounded-2xl hover:bg-background/60 transition-all">
+            <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-border-theme flex items-center justify-center font-bold text-primary text-xs">
+                    {initials}
+                </div>
+                <div>
+                    <p className="text-sm font-bold text-text-primary">{name}</p>
+                    <p className="text-[10px] text-text-secondary uppercase font-bold tracking-tighter">Productivity: {productivity}%</p>
+                </div>
             </div>
-            <div>
-                <p className="text-sm font-bold text-text-primary">{member.name}</p>
-                <p className="text-[10px] text-text-secondary uppercase font-bold tracking-tighter">Productivity: {member.stats.productivityScore}%</p>
+            <div className="text-right">
+                <p className="text-sm font-black text-text-primary">{completed}</p>
+                <p className="text-[10px] text-text-secondary uppercase font-bold tracking-tighter">Tasks Done</p>
             </div>
         </div>
-        <div className="text-right">
-            <p className="text-sm font-black text-text-primary">{member.stats.completed}</p>
-            <p className="text-[10px] text-text-secondary uppercase font-bold tracking-tighter">Tasks Done</p>
-        </div>
-    </div>
-);
+    );
+};
 
 // --- Main Page Component ---
 
@@ -154,6 +167,11 @@ const ProjectAnalyticsPage = () => {
         }
     };
 
+    const refreshAnalytics = async () => {
+        await fetchAnalytics();
+        toast.success('Analytics refreshed successfully');
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -181,7 +199,8 @@ const ProjectAnalyticsPage = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
             {/* Navigation */}
-            <div className="flex items-center justify-between">
+            {/* Navigation */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <Link 
                     href={`/admin/projects/${projectId}`}
                     className="inline-flex items-center gap-2 text-text-secondary hover:text-primary transition-colors group"
@@ -189,13 +208,21 @@ const ProjectAnalyticsPage = () => {
                     <div className="p-1.5 bg-surface border border-border-theme rounded-lg group-hover:border-primary/30 transition-all">
                         <ChevronLeft className="w-4 h-4" />
                     </div>
-                    <span className="text-sm font-bold uppercase tracking-wider">Back to Project</span>
+                    <span className="text-xs font-black uppercase tracking-widest">Back to Project</span>
                 </Link>
                 
-                <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-full">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <button
+                        onClick={refreshAnalytics}
+                        disabled={loading}
+                        className="flex-1 sm:flex-none px-6 py-2.5 bg-primary text-white border border-primary/20 rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs font-bold"
+                    >
+                        <Activity className="w-4 h-4" />
+                        {loading ? 'Refreshing...' : 'Refresh'}
+                    </button>
+                    <div className="hidden sm:flex px-4 py-2.5 bg-primary/10 border border-primary/20 rounded-full">
                         <span className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                            <Activity className="w-3 h-3" /> Real-time Analytics Active
+                            <Activity className="w-3 h-3" /> System Live
                         </span>
                     </div>
                 </div>
@@ -203,14 +230,14 @@ const ProjectAnalyticsPage = () => {
 
             {/* Header */}
             <div className="flex flex-col gap-2">
-                <h1 className="text-4xl font-black text-text-primary tracking-tight">Project Intelligence</h1>
-                <p className="text-text-secondary max-w-2xl font-medium">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary tracking-tight">Project Intelligence</h1>
+                <p className="text-sm sm:text-base text-text-secondary max-w-2xl font-medium">
                     Deep dive into <span className="text-primary font-bold">{overview.project.name}</span> performance metrics and team velocity.
                 </p>
             </div>
 
             {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard 
                     title="Tasks Total" 
                     value={overview.tasks.total} 
@@ -245,8 +272,8 @@ const ProjectAnalyticsPage = () => {
             {/* Second Row: Health & Team */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Health Assessment */}
-                <div className="lg:col-span-2 bg-surface border border-border-theme rounded-[2.5rem] p-10 shadow-xl shadow-black/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8">
+                <div className="lg:col-span-2 bg-surface border border-border-theme rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-xl shadow-black/5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 hidden sm:block">
                         <Timer className="w-12 h-12 text-border-theme/20" />
                     </div>
                     
@@ -255,7 +282,7 @@ const ProjectAnalyticsPage = () => {
                             <BarChart3 className="w-6 h-6 text-primary" /> Health Assessment
                         </h3>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-12">
                             <HealthRing value={health.healthScore.overall} label="Overall" color="var(--primary)" />
                             <HealthRing value={health.healthScore.timelineHealth} label="Timeline" color="var(--accent)" />
                             <HealthRing value={health.healthScore.teamHealth} label="Collaboration" color="var(--success)" />
@@ -271,22 +298,22 @@ const ProjectAnalyticsPage = () => {
                                         alert.type === 'warning' ? 'bg-warning/5 border-warning/10 text-warning' : 
                                         'bg-primary/5 border-primary/10 text-primary'
                                     }`}>
-                                        <div className="mt-0.5">
+                                        <div className="mt-0.5 shrink-0">
                                             {alert.type === 'error' ? <Flame className="w-5 h-5" /> : 
                                              alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : 
                                              <Info className="w-5 h-5" />}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold uppercase tracking-tight mb-1">{alert.type} signal detected</p>
-                                            <p className="text-sm font-medium opacity-90 leading-relaxed">{alert.message}</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest mb-1">{alert.type} signal</p>
+                                            <p className="text-sm font-bold opacity-90 leading-relaxed">{alert.message}</p>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="p-8 text-center bg-success/5 border border-success/10 rounded-3xl text-success">
                                     <CheckCircle2 className="w-8 h-8 mx-auto mb-3" />
-                                    <p className="font-bold">System Nominal</p>
-                                    <p className="text-xs opacity-70">No critical mission risks detected at this time.</p>
+                                    <p className="font-bold uppercase tracking-widest text-xs">System Nominal</p>
+                                    <p className="text-[10px] opacity-70 mt-1">No critical mission risks detected.</p>
                                 </div>
                             )}
                         </div>
@@ -294,24 +321,24 @@ const ProjectAnalyticsPage = () => {
                 </div>
 
                 {/* Team Performance */}
-                <div className="bg-surface border border-border-theme rounded-[2.5rem] p-10 shadow-xl shadow-black/5 flex flex-col h-full">
+                <div className="bg-surface border border-border-theme rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-xl shadow-black/5 flex flex-col h-full">
                     <h3 className="text-xl font-black text-text-primary mb-8 flex items-center gap-3">
-                        <Users className="w-6 h-6 text-accent" /> Agent Contributions
+                        <Users className="w-6 h-6 text-accent" /> Agent Intelligence
                     </h3>
                     
-                    <div className="space-y-3 flex-1">
+                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[400px] lg:max-h-none pr-2 custom-scrollbar">
                         {teamPerformance.memberPerformance.map((member) => (
                             <MemberContributionRow key={member.userId} member={member} />
                         ))}
                     </div>
 
                     {teamPerformance.summary.topPerformer && (
-                        <div className="mt-8 p-6 bg-gradient-to-br from-primary to-accent rounded-[2rem] text-white shadow-lg shadow-primary/20">
-                            <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-80">Top Performer</p>
-                            <h4 className="text-lg font-bold">{teamPerformance.summary.topPerformer.name}</h4>
+                        <div className="mt-8 p-6 bg-gradient-to-br from-primary to-accent rounded-[2rem] text-white shadow-xl shadow-primary/20">
+                            <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-80">MVP Deployment</p>
+                            <h4 className="text-lg font-black tracking-tight">{teamPerformance.summary.topPerformer.name}</h4>
                             <div className="flex items-center justify-between mt-4">
-                                <span className="text-xs font-bold">Productivity Rating</span>
-                                <span className="text-xl font-black">{teamPerformance.summary.topPerformer.score}%</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest opacity-90">Efficiency</span>
+                                <span className="text-2xl font-black">{teamPerformance.summary.topPerformer.score}%</span>
                             </div>
                         </div>
                     )}

@@ -21,6 +21,8 @@ interface ProjectCardProps {
     isAppAdmin?: boolean;
     className?: string;
     href?: string;
+    currentUserId?: string;
+    showMyFocus?: boolean; // Control whether to show "My Focus" button
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -31,7 +33,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     isCreator = false,
     isAppAdmin = false,
     className = '',
-    href
+    href,
+    currentUserId,
+    showMyFocus = false
 }) => {
     const canManage = isCreator || isAppAdmin;
     const memberAvatars = project.members.slice(0, 4);
@@ -63,14 +67,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 'from-text-secondary to-border-theme'
             }`} />
 
-            <div className="p-8">
+            <div className="p-6 sm:p-8">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-6">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                             <StatusBadge status={project.status} size="sm" />
                             {isCreator && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full ring-1 ring-primary/20">
+                                <span className="text-[10px] font-black uppercase tracking-widest bg-accent/10 text-accent px-2 py-0.5 rounded-full ring-1 ring-accent/20">
                                     Creator
                                 </span>
                             )}
@@ -80,18 +84,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                                 href={href}
                                 className="group/link inline-flex items-center gap-2"
                             >
-                                <h3 className="text-xl font-bold text-text-primary truncate group-hover/link:text-primary transition-colors">
+                                <h3 className="text-xl sm:text-2xl font-black text-text-primary truncate group-hover/link:text-accent transition-colors tracking-tight">
                                     {project.name}
                                 </h3>
-                                <ArrowUpRight className="w-4 h-4 text-text-secondary opacity-0 -translate-y-1 translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-y-0 group-hover/link:translate-x-0 transition-all" />
+                                <ArrowUpRight className="w-5 h-5 text-text-secondary opacity-0 -translate-y-1 translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-y-0 group-hover/link:translate-x-0 transition-all" />
                             </Link>
                         ) : (
-                            <h3 className="text-xl font-bold text-text-primary truncate">
+                            <h3 className="text-xl sm:text-2xl font-black text-text-primary truncate tracking-tight">
                                 {project.name}
                             </h3>
                         )}
                         {project.description && (
-                            <p className="text-text-secondary text-sm mt-2 line-clamp-2 leading-relaxed">
+                            <p className="text-text-secondary text-sm mt-3 line-clamp-2 leading-relaxed font-medium">
                                 {project.description}
                             </p>
                         )}
@@ -101,39 +105,39 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 {/* Project Info */}
                 <div className="space-y-6">
                     {/* Timeline */}
-                    <div className="flex items-center gap-4 py-4 border-y border-border-theme/50">
-                        <div className="flex items-center text-xs text-text-secondary">
-                            <Calendar className="w-3.5 h-3.5 mr-2 text-primary/60" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-4 border-y border-border-theme/50">
+                        <div className="flex items-center text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                            <Calendar className="w-3.5 h-3.5 mr-2 text-accent/60" />
                             <span>{formatDate(project.startDate)}</span>
                         </div>
-                        <div className="h-px flex-1 bg-border-theme/50" />
-                        <div className="flex items-center text-xs text-text-secondary">
-                            <Clock className="w-3.5 h-3.5 mr-2 text-accent/60" />
+                        <div className="hidden sm:block h-px flex-1 bg-border-theme/50" />
+                        <div className="flex items-center text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                            <Clock className="w-3.5 h-3.5 mr-2 text-primary/60" />
                             <span>{formatDate(project.endDate)}</span>
                         </div>
                     </div>
 
                     {/* Members & Meta */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                         <div className="flex items-center">
                             <div className="flex -space-x-3">
                                 {memberAvatars.map((member) => (
                                     <div
                                         key={member._id}
-                                        className="w-9 h-9 rounded-full bg-surface border-2 border-background flex items-center justify-center shadow-sm"
+                                        className="w-10 h-10 rounded-full bg-surface border-2 border-background flex items-center justify-center shadow-lg"
                                         title={`${member.firstName} ${member.lastName}`}
                                     >
-                                        <div className="w-full h-full rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ring-1 ring-inset ring-black/5">
-                                            <span className="text-[10px] font-bold text-primary">
+                                        <div className="w-full h-full rounded-full bg-gradient-to-br from-accent/10 to-primary/10 flex items-center justify-center ring-1 ring-inset ring-black/5">
+                                            <span className="text-[10px] font-black text-accent">
                                                 {getInitials(member.firstName, member.lastName)}
                                             </span>
                                         </div>
                                     </div>
                                 ))}
                                 {remainingMembers > 0 && (
-                                    <div className="w-9 h-9 rounded-full bg-surface border-2 border-background flex items-center justify-center shadow-sm">
+                                    <div className="w-10 h-10 rounded-full bg-surface border-2 border-background flex items-center justify-center shadow-lg">
                                         <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center">
-                                            <span className="text-[10px] font-bold text-text-secondary">
+                                            <span className="text-[10px] font-black text-text-secondary">
                                                 +{remainingMembers}
                                             </span>
                                         </div>
@@ -141,16 +145,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                                 )}
                             </div>
                             <div className="ml-4">
-                                <p className="text-xs font-semibold text-text-primary">{project.members.length} Members</p>
-                                <p className="text-[10px] text-text-secondary">Assigned team</p>
+                                <p className="text-xs font-black text-text-primary uppercase tracking-widest">{project.members.length} Members</p>
+                                <p className="text-[10px] text-text-secondary font-medium">Assigned team</p>
                             </div>
                         </div>
+                        
+                        {/* View My Tasks Button - Only show for regular users */}
+                        {showMyFocus && currentUserId && (
+                            <Link href={`/projects/${project._id}/tasks?userId=${currentUserId}`} className="w-full sm:w-auto">
+                                <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-[1.02] transition-all active:scale-95 border border-accent/20">
+                                    <Clock className="w-4 h-4" />
+                                    My Focus
+                                </button>
+                            </Link>
+                        )}
                     </div>
                 </div>
 
                 {/* Actions Overlay */}
                 {canManage && (
-                    <div className="flex items-center justify-end gap-2 mt-8 pt-6 border-t border-border-theme/50 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                    <div className="flex items-center justify-end gap-2 mt-8 pt-6 border-t border-border-theme/50 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 sm:translate-y-2 group-hover:translate-y-0">
                         {onEdit && (
                             <button
                                 onClick={() => onEdit(project)}

@@ -47,6 +47,12 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
+    // Filter states
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [showFilters, setShowFilters] = useState(false);
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -89,6 +95,49 @@ export default function AdminDashboard() {
         }
     };
 
+    const filteredUsers = users.filter((u) => {
+        const matchesSearch = 
+            u.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            u.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            u.email.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesStatus = statusFilter === "all" || u.status === statusFilter;
+        const matchesRole = roleFilter === "all" || u.role === roleFilter;
+
+        return matchesSearch && matchesStatus && matchesRole;
+    });
+
+    const handleExport = () => {
+        if (filteredUsers.length === 0) {
+            toast.error("No data to export");
+            return;
+        }
+
+        const headers = ["First Name", "Last Name", "Email", "Role", "Status", "Joined Date"];
+        const csvContent = [
+            headers.join(","),
+            ...filteredUsers.map(u => [
+                `"${u.firstName}"`,
+                `"${u.lastName}"`,
+                `"${u.email}"`,
+                `"${u.role}"`,
+                `"${u.status}"`,
+                `"${new Date(u.createdAt).toLocaleDateString()}"`
+            ].join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success("Data exported successfully");
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -101,17 +150,27 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-text-primary">System Overview</h1>
-                    <p className="text-text-secondary mt-1">Real-time statistics and user management.</p>
+                    <h1 className="text-3xl sm:text-4xl font-black text-text-primary tracking-tight">System Overview</h1>
+                    <p className="text-text-secondary mt-1 font-medium">Real-time statistics and user management.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-surface border border-border-theme text-text-primary rounded-xl hover:bg-secondary transition-colors text-sm font-medium shadow-sm active:scale-95">
+                <div className="flex flex-wrap items-center gap-3">
+                    <button 
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 border rounded-2xl transition-all text-sm font-bold shadow-sm active:scale-95 ${
+                            showFilters 
+                                ? "bg-primary/10 border-primary text-primary" 
+                                : "bg-surface border-border-theme text-text-primary hover:bg-secondary"
+                        }`}
+                    >
                         <Filter className="w-4 h-4" />
-                        Filter
+                        {showFilters ? "Hide" : "Filter"}
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl hover:opacity-90 transition-all text-sm font-medium shadow-lg shadow-primary/20 active:scale-95">
+                    <button 
+                        onClick={handleExport}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl hover:opacity-90 transition-all text-sm font-bold shadow-xl shadow-primary/20 active:scale-95"
+                    >
                         Export Data
                     </button>
                 </div>
@@ -151,6 +210,51 @@ export default function AdminDashboard() {
                 </div>
             )}
 
+            {/* Filters Bar */}
+            {showFilters && (
+                <div className="bg-surface/50 backdrop-blur-xl border border-border-theme rounded-3xl p-6 shadow-xl animate-in slide-in-from-top-4 duration-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider px-1">Role</label>
+                            <select 
+                                value={roleFilter}
+                                onChange={(e) => setRoleFilter(e.target.value)}
+                                className="w-full bg-background border border-border-theme rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="all">All Roles</option>
+                                <option value="admin">Administrators</option>
+                                <option value="member">Team Members</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-text-secondary uppercase tracking-wider px-1">Status</label>
+                            <select 
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full bg-background border border-border-theme rounded-xl px-4 py-2.5 text-sm text-text-primary focus:outline-none focus:border-primary transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="all">All Statuses</option>
+                                <option value="approved">Approved</option>
+                                <option value="pending">Pending</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div className="flex items-end">
+                            <button 
+                                onClick={() => {
+                                    setSearchQuery("");
+                                    setStatusFilter("all");
+                                    setRoleFilter("all");
+                                }}
+                                className="w-full px-4 py-2.5 text-sm font-bold text-text-secondary hover:text-error transition-colors"
+                            >
+                                Reset All Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Users Section */}
             <div className="bg-surface/50 backdrop-blur-xl border border-border-theme rounded-3xl overflow-hidden shadow-2xl shadow-black/5 dark:shadow-black/50">
                 <div className="p-6 border-b border-border-theme flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -165,6 +269,8 @@ export default function AdminDashboard() {
                         <input 
                             type="text" 
                             placeholder="Search by name or email..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="bg-background border border-border-theme rounded-xl pl-10 pr-4 py-2 text-sm text-text-primary focus:outline-none focus:border-primary transition-all w-full sm:w-64"
                         />
                     </div>
@@ -178,25 +284,24 @@ export default function AdminDashboard() {
                                 <th className="px-6 py-4">Role</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Joined Date</th>
-                                <th className="px-8 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-theme">
-                            {users.map((u) => (
+                            {filteredUsers.map((u) => (
                                 <tr key={u._id} className="group hover:bg-secondary/30 transition-colors">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-surface border border-border-theme flex items-center justify-center text-text-primary font-bold">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-surface border border-border-theme flex items-center justify-center text-text-primary font-bold shrink-0">
                                                 {u.firstName[0]}
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-text-primary">{u.firstName} {u.lastName}</p>
-                                                <p className="text-xs text-text-secondary">{u.email}</p>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-text-primary truncate">{u.firstName} {u.lastName}</p>
+                                                <p className="text-xs text-text-secondary truncate">{u.email}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
                                             u.role === "admin" 
                                                 ? "bg-primary/10 text-primary border border-primary/20" 
                                                 : "bg-accent/10 text-accent border border-accent/20"
@@ -205,7 +310,7 @@ export default function AdminDashboard() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${
                                             u.status === "approved"
                                                 ? "bg-success/10 text-success border border-success/20"
                                                 : u.status === "pending"
@@ -219,42 +324,23 @@ export default function AdminDashboard() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="text-sm text-text-secondary">
+                                        <p className="text-sm text-text-secondary whitespace-nowrap">
                                             {new Date(u.createdAt).toLocaleDateString()}
                                         </p>
-                                    </td>
-                                    <td className="px-8 py-5 text-right">
-                                        {u.status === "pending" ? (
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleApprove(u._id)}
-                                                    disabled={actionLoading === u._id}
-                                                    className="px-3 py-1.5 bg-success hover:opacity-90 text-white text-xs font-bold rounded-lg transition-all shadow-lg shadow-success/10 disabled:opacity-50"
-                                                >
-                                                    {actionLoading === u._id ? "..." : "Approve"}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleReject(u._id)}
-                                                    disabled={actionLoading === u._id}
-                                                    className="px-3 py-1.5 bg-error hover:opacity-90 text-white text-xs font-bold rounded-lg transition-all shadow-lg shadow-error/10 disabled:opacity-50"
-                                                >
-                                                    {actionLoading === u._id ? "..." : "Reject"}
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button className="p-2 text-text-secondary hover:text-text-primary hover:bg-secondary rounded-lg transition-colors">
-                                                <MoreVertical className="w-5 h-5" />
-                                            </button>
-                                        )}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    {filteredUsers.length === 0 && (
+                        <div className="p-20 text-center">
+                            <p className="text-text-secondary font-medium">No users found matching your criteria.</p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-6 border-t border-border-theme flex items-center justify-between">
-                    <p className="text-sm text-text-secondary">Showing {users.length} of {stats?.total || 0} users</p>
+                    <p className="text-sm text-text-secondary">Showing {filteredUsers.length} of {stats?.total || 0} users</p>
                     <div className="flex items-center gap-2">
                         <button className="px-4 py-2 bg-surface border border-border-theme text-text-secondary rounded-xl text-sm disabled:opacity-50" disabled>Previous</button>
                         <button className="px-4 py-2 bg-surface border border-border-theme text-text-primary rounded-xl text-sm hover:bg-secondary transition-colors">Next</button>

@@ -35,7 +35,7 @@ const NewProjectPage = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Header */}
                 <div className="space-y-6">
                     <button 
@@ -45,18 +45,18 @@ const NewProjectPage = () => {
                         <div className="p-1.5 bg-surface border border-border-theme rounded-lg group-hover:border-primary/30 transition-all">
                             <ChevronLeft className="w-4 h-4" />
                         </div>
-                        <span className="text-sm font-bold uppercase tracking-wider">Cancel Deployment</span>
+                        <span className="text-xs font-bold uppercase tracking-widest">Cancel Deployment</span>
                     </button>
 
-                    <div className="flex items-center gap-6">
-                        <div className="p-4 bg-primary/10 rounded-[1.5rem] border border-primary/20 shadow-xl shadow-primary/5">
-                            <Rocket className="w-8 h-8 text-primary" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-2xl sm:rounded-[1.5rem] border border-primary/20 shadow-xl shadow-primary/5 flex items-center justify-center shrink-0">
+                            <Rocket className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-black text-text-primary tracking-tight">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary tracking-tight">
                                 New Project Mission
                             </h1>
-                            <p className="text-text-secondary font-medium">
+                            <p className="text-text-secondary font-medium mt-1">
                                 Configure the operational parameters for your team's next objective.
                             </p>
                         </div>
@@ -64,7 +64,7 @@ const NewProjectPage = () => {
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-surface/50 backdrop-blur-xl border border-border-theme rounded-[2.5rem] p-10 shadow-2xl shadow-black/5 relative overflow-hidden">
+                <div className="bg-surface/50 backdrop-blur-xl border border-border-theme rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-black/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                     
                     <div className="relative z-10">
@@ -78,14 +78,14 @@ const NewProjectPage = () => {
                 </div>
 
                 {/* Info Card */}
-                <div className="bg-secondary/50 border border-border-theme rounded-2xl p-6 flex gap-4 items-start">
-                    <div className="p-2 bg-background rounded-xl border border-border-theme mt-1">
+                <div className="bg-secondary/50 border border-border-theme rounded-2xl p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="p-2 bg-background rounded-xl border border-border-theme shrink-0">
                         <Rocket className="w-4 h-4 text-accent" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-text-primary mb-1">Mission Ready?</p>
+                        <p className="text-sm font-bold text-text-primary mb-0.5">Mission Ready?</p>
                         <p className="text-xs text-text-secondary leading-relaxed">
-                            Once initiated, you can deploy team members and start allocating tasks. All mission data is tracked in real-time within your portfolio dashboard.
+                            Once initiated, you can deploy team members and start allocating tasks. All mission data is tracked in real-time.
                         </p>
                     </div>
             </div>

@@ -4,37 +4,45 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
     LayoutDashboard, 
-    Users, 
     FolderKanban, 
-    Settings, 
-    ChevronLeft, 
     LogOut,
-    Bell,
-    CheckSquare
+    X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/admin" },
-    { label: "Users", icon: Users, href: "/admin/users" },
     { label: "Projects", icon: FolderKanban, href: "/admin/projects" },
-    { label: "Settings", icon: Settings, href: "/admin/settings" },
 ];
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+    onClose?: () => void;
+}
+
+export default function AdminSidebar({ onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const { user, logout } = useAuth();
 
     return (
         <aside className="w-64 h-screen bg-sidebar-bg border-r border-border-theme flex flex-col fixed left-0 top-0 z-50 transition-all duration-300">
-            {/* Logo */}
-            <div className="p-6 mb-2">
+            {/* Logo & Close Button */}
+            <div className="p-6 mb-2 flex items-center justify-between">
                 <Link href="/admin" className="flex items-center gap-3 group">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-[#7C3AED] flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-105 transition-transform duration-300">
                         <span className="text-white font-bold text-xl">A</span>
                     </div>
                     <span className="text-xl font-bold text-text-primary tracking-tight">Aurora <span className="text-primary">Admin</span></span>
                 </Link>
+
+                {/* Close Button - Only visible on mobile */}
+                {onClose && (
+                    <button 
+                        onClick={onClose}
+                        className="p-2 text-text-secondary hover:text-text-primary hover:bg-secondary rounded-lg transition-all lg:hidden"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Navigation */}

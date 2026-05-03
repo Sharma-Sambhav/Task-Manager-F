@@ -6,9 +6,9 @@ import {
     LayoutDashboard, 
     CheckSquare, 
     FolderKanban, 
-    Settings, 
     LogOut,
-    User
+    User,
+    X
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,23 +16,36 @@ const navItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "My Tasks", icon: CheckSquare, href: "/dashboard/tasks" },
     { label: "Projects", icon: FolderKanban, href: "/projects" },
-    { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
-export default function UserSidebar() {
+interface UserSidebarProps {
+    onClose?: () => void;
+}
+
+export default function UserSidebar({ onClose }: UserSidebarProps) {
     const pathname = usePathname();
     const { user, logout } = useAuth();
 
     return (
-        <aside className="w-64 h-screen bg-sidebar-bg border-r border-border-theme flex flex-col fixed left-0 top-0 z-50 transition-all duration-300">
-            {/* Logo */}
-            <div className="p-6 mb-2">
+        <aside className="w-64 h-screen bg-sidebar-bg border-r border-border-theme flex flex-col fixed left-0 top-0 z-[70] transition-all duration-300">
+            {/* Logo & Close Button */}
+            <div className="p-6 mb-2 flex items-center justify-between">
                 <Link href="/dashboard" className="flex items-center gap-3 group">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-[#38bdf8] flex items-center justify-center shadow-xl shadow-accent/30 group-hover:scale-105 transition-transform duration-300">
                         <span className="text-white font-bold text-xl">A</span>
                     </div>
                     <span className="text-xl font-bold text-text-primary tracking-tight">Aurora <span className="text-accent">User</span></span>
                 </Link>
+
+                {/* Close Button - Only visible on mobile */}
+                {onClose && (
+                    <button 
+                        onClick={onClose}
+                        className="p-2 text-text-secondary hover:text-text-primary hover:bg-secondary rounded-lg transition-all lg:hidden"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Navigation */}

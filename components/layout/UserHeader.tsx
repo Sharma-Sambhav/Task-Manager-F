@@ -2,69 +2,52 @@
 
 import { 
     Search, 
-    Bell, 
-    Home,
-    ChevronRight,
     Sun,
-    Moon
+    Moon,
+    Menu
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 
-export default function UserHeader() {
-    const pathname = usePathname();
-    const segments = pathname.split("/").filter(Boolean);
+interface UserHeaderProps {
+    onMenuClick?: () => void;
+}
+
+export default function UserHeader({ onMenuClick }: UserHeaderProps) {
     const { theme, setTheme } = useTheme();
-    const { labels } = useBreadcrumbs();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Helper to get cumulative path for label lookup
-    const getPathForSegment = (index: number) => {
-        return '/' + segments.slice(0, index + 1).join('/');
-    };
-
     return (
-        <header className="h-20 bg-background/80 backdrop-blur-xl border-b border-border-theme sticky top-0 z-40 px-8 flex items-center justify-between transition-colors duration-300">
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2">
-                <Link href="/dashboard" className="p-2 text-text-secondary hover:text-text-primary transition-colors">
-                    <Home className="w-4 h-4" />
-                </Link>
-                {segments.map((segment, index) => {
-                    const fullPath = getPathForSegment(index);
-                    const label = labels[segment] || labels[fullPath] || segment.replace("-", " ");
-                    
-                    return (
-                        <div key={index} className="flex items-center gap-2">
-                            <ChevronRight className="w-4 h-4 text-border-theme" />
-                            <span className={`text-sm font-medium capitalize ${
-                                index === segments.length - 1 ? "text-text-primary" : "text-text-secondary"
-                            }`}>
-                                {label}
-                            </span>
-                        </div>
-                    );
-                })}
+        <header className="h-20 bg-background/80 backdrop-blur-xl border-b border-border-theme sticky top-0 z-[50] px-4 sm:px-8 flex items-center justify-between transition-colors duration-300">
+            {/* Menu & Logo */}
+            <div className="flex items-center gap-2 sm:gap-4">
+                {/* Mobile Menu Button - Only visible on mobile */}
+                <button 
+                    onClick={onMenuClick}
+                    className="p-2 text-text-secondary hover:text-text-primary hover:bg-secondary rounded-xl transition-all lg:hidden"
+                >
+                    <Menu className="w-6 h-6" />
+                </button>
+
+                {/* Mobile Logo/Brand */}
+                <div className="flex items-center gap-2 px-2 lg:hidden">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-[#38bdf8] flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">A</span>
+                    </div>
+                    <span className="text-lg font-black text-text-primary tracking-tight">Aurora</span>
+                </div>
             </div>
 
             {/* Actions */}
             <div className="flex items-center gap-6">
                 {/* Search */}
-                <div className="hidden md:flex relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-                    <input 
-                        type="text" 
-                        placeholder="Search tasks..."
-                        className="bg-surface border border-border-theme rounded-xl pl-10 pr-4 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-accent transition-all w-64"
-                    />
-                </div>
+                
 
                 <div className="flex items-center gap-3">
                     {/* Theme Toggle */}
@@ -82,10 +65,6 @@ export default function UserHeader() {
                         </button>
                     )}
 
-                    <button className="p-2.5 bg-surface border border-border-theme text-text-secondary hover:text-text-primary hover:border-accent/50 rounded-xl transition-all relative shadow-sm">
-                        <Bell className="w-5 h-5" />
-                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full ring-2 ring-background" />
-                    </button>
                 </div>
             </div>
         </header>
