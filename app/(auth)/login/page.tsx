@@ -69,6 +69,26 @@ function LoginForm() {
                 </div>
             )}
 
+            {/* Test Credentials for Recruiters */}
+            <div className="mb-6 p-4 bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 rounded-2xl">
+                <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                    <h3 className="text-sm font-black text-text-primary uppercase tracking-widest">Demo Credentials</h3>
+                </div>
+                <div className="space-y-3">
+                    <div>
+                        <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">👑 Admin Access</p>
+                        <p className="text-sm text-text-secondary">Email: <span className="text-text-primary font-mono">admin@gmail.com</span></p>
+                        <p className="text-sm text-text-secondary">Password: <span className="text-text-primary font-mono">admin@123</span></p>
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-accent uppercase tracking-wider mb-1">👤 User Access</p>
+                        <p className="text-sm text-text-secondary">Email: <span className="text-text-primary font-mono">viper.iot7@gmail.com</span></p>
+                        <p className="text-sm text-text-secondary">Password: <span className="text-text-primary font-mono">admin@123</span></p>
+                    </div>
+                </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <Input
                     label="Email Address"
