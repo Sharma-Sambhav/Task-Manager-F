@@ -284,6 +284,7 @@ export default function AdminDashboard() {
                                 <th className="px-6 py-4">Role</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Joined Date</th>
+                                <th className="px-6 py-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-theme">
@@ -327,6 +328,56 @@ export default function AdminDashboard() {
                                         <p className="text-sm text-text-secondary whitespace-nowrap">
                                             {new Date(u.createdAt).toLocaleDateString()}
                                         </p>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <div className="flex items-center justify-center gap-2">
+                                            {u.status === "pending" && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleApprove(u._id)}
+                                                        disabled={actionLoading === u._id}
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-success text-white border border-success rounded-xl text-xs font-bold hover:bg-success/90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-success/20"
+                                                        title="Approve user access"
+                                                    >
+                                                        {actionLoading === u._id ? (
+                                                            <Loader size="sm" />
+                                                        ) : (
+                                                            <>
+                                                                <UserCheck className="w-4 h-4" />
+                                                                Approve
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(u._id)}
+                                                        disabled={actionLoading === u._id}
+                                                        className="flex items-center gap-1.5 px-4 py-2 bg-error text-white border border-error rounded-xl text-xs font-bold hover:bg-error/90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-error/20"
+                                                        title="Reject user access"
+                                                    >
+                                                        {actionLoading === u._id ? (
+                                                            <Loader size="sm" />
+                                                        ) : (
+                                                            <>
+                                                                <UserX className="w-4 h-4" />
+                                                                Reject
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </>
+                                            )}
+                                            {u.status === "approved" && (
+                                                <div className="flex items-center gap-1.5 text-xs text-success font-bold px-4 py-2 bg-success/10 rounded-xl border border-success/20">
+                                                    <UserCheck className="w-4 h-4" />
+                                                    Approved
+                                                </div>
+                                            )}
+                                            {u.status === "rejected" && (
+                                                <div className="flex items-center gap-1.5 text-xs text-error font-bold px-4 py-2 bg-error/10 rounded-xl border border-error/20">
+                                                    <UserX className="w-4 h-4" />
+                                                    Rejected
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
