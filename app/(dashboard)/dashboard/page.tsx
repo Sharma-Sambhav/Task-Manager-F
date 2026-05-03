@@ -2,18 +2,21 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import UserLayout from "@/components/layout/UserLayout";
-import { 
-    LayoutDashboard, 
-    CheckSquare, 
-    Clock, 
+import {
+    LayoutDashboard,
+    CheckSquare,
+    Clock,
     CheckCircle2,
     ArrowUpRight,
     Plus
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FolderKanban } from "lucide-react";
 
 export default function DashboardPage() {
     const { user } = useAuth();
+    const router = useRouter();
 
     return (
         <UserLayout>
@@ -28,37 +31,42 @@ export default function DashboardPage() {
                             Here's what's happening with your projects today.
                         </p>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl hover:opacity-90 transition-all text-sm font-medium shadow-lg shadow-accent/20 active:scale-95">
-                        <Plus className="w-4 h-4" />
-                        New Project
-                    </button>
+                    {user?.role === 'admin' && (
+                        <button
+                            onClick={() => router.push('/admin/projects')}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl hover:opacity-90 transition-all text-sm font-medium shadow-lg shadow-accent/20 active:scale-95"
+                        >
+                            <Plus className="w-4 h-4" />
+                            New Project
+                        </button>
+                    )}
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <UserStatCard 
-                        title="Active Projects" 
-                        value="0" 
-                        icon={LayoutDashboard} 
-                        color="blue" 
+                    <UserStatCard
+                        title="Active Projects"
+                        value="0"
+                        icon={LayoutDashboard}
+                        color="blue"
                     />
-                    <UserStatCard 
-                        title="Pending Tasks" 
-                        value="0" 
-                        icon={Clock} 
-                        color="amber" 
+                    <UserStatCard
+                        title="Pending Tasks"
+                        value="0"
+                        icon={Clock}
+                        color="amber"
                     />
-                    <UserStatCard 
-                        title="Completed Tasks" 
-                        value="0" 
-                        icon={CheckCircle2} 
-                        color="emerald" 
+                    <UserStatCard
+                        title="Completed Tasks"
+                        value="0"
+                        icon={CheckCircle2}
+                        color="emerald"
                     />
-                    <UserStatCard 
-                        title="Productivity" 
-                        value="0%" 
-                        icon={CheckSquare} 
-                        color="purple" 
+                    <UserStatCard
+                        title="Productivity"
+                        value="0%"
+                        icon={CheckSquare}
+                        color="purple"
                     />
                 </div>
 
@@ -68,22 +76,19 @@ export default function DashboardPage() {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold text-text-primary">Recent Projects</h2>
-                            <Link href="/dashboard/projects" className="text-sm font-medium text-accent hover:underline">
+                            <Link href="/projects" className="text-sm font-medium text-accent hover:underline">
                                 View all
                             </Link>
                         </div>
-                        
+
                         <div className="bg-surface/50 backdrop-blur-xl border border-border-theme rounded-3xl p-12 text-center shadow-xl shadow-black/5">
                             <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <Plus className="w-8 h-8 text-accent" />
+                                <FolderKanban className="w-8 h-8 text-accent" />
                             </div>
-                            <h3 className="text-lg font-bold text-text-primary mb-2">No projects yet</h3>
+                            <h3 className="text-lg font-bold text-text-primary mb-2">No active assignments</h3>
                             <p className="text-text-secondary mb-6 max-w-xs mx-auto">
-                                Start your first project to begin managing tasks with your team.
+                                You haven't been assigned to any projects yet.
                             </p>
-                            <button className="px-6 py-2.5 bg-accent text-white rounded-xl font-medium hover:opacity-90 transition-all shadow-lg shadow-accent/20 active:scale-95">
-                                Create your first project
-                            </button>
                         </div>
                     </div>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
@@ -34,8 +35,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <AuthProvider>
-            <Toaster position="top-right" richColors />
-            {children}
+            <BreadcrumbProvider>
+              <Toaster position="top-right" richColors />
+              {children}
+            </BreadcrumbProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

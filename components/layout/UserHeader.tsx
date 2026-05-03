@@ -12,16 +12,23 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 
 export default function UserHeader() {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const { theme, setTheme } = useTheme();
+    const { labels } = useBreadcrumbs();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Helper to get cumulative path for label lookup
+    const getPathForSegment = (index: number) => {
+        return '/' + segments.slice(0, index + 1).join('/');
+    };
 
     return (
         <header className="h-20 bg-background/80 backdrop-blur-xl border-b border-border-theme sticky top-0 z-40 px-8 flex items-center justify-between transition-colors duration-300">
@@ -30,16 +37,21 @@ export default function UserHeader() {
                 <Link href="/dashboard" className="p-2 text-text-secondary hover:text-text-primary transition-colors">
                     <Home className="w-4 h-4" />
                 </Link>
-                {segments.map((segment, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                        <ChevronRight className="w-4 h-4 text-border-theme" />
-                        <span className={`text-sm font-medium capitalize ${
-                            index === segments.length - 1 ? "text-text-primary" : "text-text-secondary"
-                        }`}>
-                            {segment.replace("-", " ")}
-                        </span>
-                    </div>
-                ))}
+                {segments.map((segment, index) => {
+                    const fullPath = getPathForSegment(index);
+                    const label = labels[segment] || labels[fullPath] || segment.replace("-", " ");
+                    
+                    return (
+                        <div key={index} className="flex items-center gap-2">
+                            <ChevronRight className="w-4 h-4 text-border-theme" />
+                            <span className={`text-sm font-medium capitalize ${
+                                index === segments.length - 1 ? "text-text-primary" : "text-text-secondary"
+                            }`}>
+                                {label}
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Actions */}

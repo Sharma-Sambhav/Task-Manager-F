@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 const navItems = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "My Tasks", icon: CheckSquare, href: "/dashboard/tasks" },
-    { label: "Projects", icon: FolderKanban, href: "/dashboard/projects" },
+    { label: "Projects", icon: FolderKanban, href: "/projects" },
     { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 

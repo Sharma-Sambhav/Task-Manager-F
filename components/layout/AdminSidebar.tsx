@@ -9,7 +9,8 @@ import {
     Settings, 
     ChevronLeft, 
     LogOut,
-    Bell
+    Bell,
+    CheckSquare
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
